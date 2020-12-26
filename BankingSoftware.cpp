@@ -14,10 +14,14 @@ struct user
 
 user getUserFromString(string input);
 
-void Register(vector<user>& users);
+int Login(vector<user>& users);
+int Register(vector<user>& users);
 void Quit(vector<user>& users);
 
-bool usernameIsTaken(vector<user>& users, string username);
+int getUserId(vector<user>& users, string username);
+bool passwordsMatch(vector<user>& users, int userId, string passwordGuess);
+
+bool usernameExists(vector<user>& users, string username);
 bool validateUsername(string username);
 
 bool validatePassword(string password);
@@ -41,6 +45,7 @@ int main()
     }
     userDb.close();
 
+    int currentUserId;
     while (true)
     {
         cout << "   ---   Main Menu   ---" << endl;
@@ -52,8 +57,11 @@ int main()
         cin >> command;
         switch (command)
         {
+        case 'L':
+            currentUserId = Login(users);
+            break;
         case 'R':
-            Register(users);
+            currentUserId = Register(users);
             break;
         case 'Q':
             Quit(users);
@@ -66,21 +74,31 @@ int main()
     return 0;
 }
 
-void Quit(vector<user>& users)
+int Login(vector<user>& users)
 {
-    fstream userDb;
-    userDb.open("users.txt", fstream::out);
-
-    for (int i = 0; i < users.size(); i++)
+    cout << "Username:" << endl;
+    string username;
+    cin >> username;
+    while (!usernameExists(users, username))
     {
-        user currentUser = users[i];
-        userDb << fixed << setprecision(2) << currentUser.name << ':' << currentUser.hashedPassword << ':' << currentUser.balance << endl;
+        cout << "User doesn't exist\nUsername:" << endl;
+        cin >> username;
+    }
+    int userId = getUserId(users, username);
+
+    cout << "Password:" << endl;
+    string password;
+    cin >> password;
+    while (!passwordsMatch(users, userId, password))
+    {
+        cout << "Incorrect password\nPassword:" << endl;
+        cin >> password;
     }
 
-    userDb.close();
+    return userId;
 }
 
-void Register(vector<user>& users)
+int Register(vector<user>& users)
 {
     cout << "Choose Username:" << endl;
     string username;
@@ -90,7 +108,7 @@ void Register(vector<user>& users)
         cout << "Username must contain only latin letters, choose another Username:" << endl;
         cin >> username;
     }
-    while (usernameIsTaken(users, username))
+    while (usernameExists(users, username))
     {
         cout << "Username is already taken, choose another Username:" << endl;
         cin >> username;
@@ -123,6 +141,22 @@ void Register(vector<user>& users)
     newUser.balance = 0;
 
     users.push_back(newUser);
+
+    return getUserId(users, username);
+}
+
+void Quit(vector<user>& users)
+{
+    fstream userDb;
+    userDb.open("users.txt", fstream::out);
+
+    for (int i = 0; i < users.size(); i++)
+    {
+        user currentUser = users[i];
+        userDb << fixed << setprecision(2) << currentUser.name << ':' << currentUser.hashedPassword << ':' << currentUser.balance << endl;
+    }
+
+    userDb.close();
 }
 
 user getUserFromString(string input)
@@ -170,6 +204,30 @@ user getUserFromString(string input)
     return currentUser;
 }
 
+int getUserId(vector<user>& users, string username)
+{
+    for (int i = 0; i < users.size(); i++)
+    {
+        if (users[i].name == username)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+bool passwordsMatch(vector<user>& users, int userId, string passwordGuess)
+{
+    hash<string> hashString;
+    unsigned long hashedPasswordGuess = hashString(passwordGuess);
+
+    if (users[userId].hashedPassword == hashedPasswordGuess)
+    {
+        return true;
+    }
+    return false;
+}
+
 bool validateUsername(string username)
 {
     for (int i = 0; i < username.size(); i++)
@@ -182,7 +240,7 @@ bool validateUsername(string username)
     return true;
 }
 
-bool usernameIsTaken(vector<user>& users, string username)
+bool usernameExists(vector<user>& users, string username)
 {
     for (int i = 0; i < users.size(); i++)
     {
