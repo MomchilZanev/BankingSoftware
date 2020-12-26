@@ -192,6 +192,7 @@ void userMenu(vector<user>& users, const int userId)
         case 'C':            
             if (cancelAccount(users, userId))
             {
+                //If account was removed successfully go to Main menu
                 return;
             }
             break;
@@ -409,18 +410,9 @@ bool usernameExists(vector<user>& users, const string username)
 bool validatePassword(const string password)
 {
     int length = password.size();
-    if (length < 5 || !stringContainsLowercaseLetter(password) || !stringContainsUppercaseLetter(password) || !stringContainsSymbol(password))
+    if (length < 5 || !stringContainsLowercaseLetter(password) || !stringContainsUppercaseLetter(password) || !stringContainsSymbol(password) || stringContainsIllegalCharacters(password))
     {
         return false;
-    }
-
-    
-    for (int i = 0; i < password.size(); i++)
-    {
-        if (!((password[i] >= 'a' && password[i] <= 'z') || (password[i] >= 'A' && password[i] <= 'Z') || (password[i] >= '1' && password[i] <= '9') || (charIsSymbol(password[i]))))
-        {
-            return false;
-        }
     }
     return true;
 }
@@ -431,10 +423,10 @@ bool stringContainsIllegalCharacters(const string input)
     {
         if (!((input[i] >= 'a' && input[i] <= 'z') || (input[i] >= 'A' && input[i] <= 'Z') || (input[i] >= '1' && input[i] <= '9') || (charIsSymbol(input[i]))))
         {
-            return false;
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 bool charIsSymbol(const char character)
