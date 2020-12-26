@@ -177,7 +177,7 @@ void userMenu(vector<user>& users, int userId)
     while (true)
     {
         user currentUser = users[userId];
-        cout << "You have " << currentUser.balance << " BGN. Choose one of the following options:" << endl;
+        cout << fixed << setprecision(2) << "You have " << currentUser.balance << " BGN. Choose one of the following options:" << endl;
         cout << "C - Cancel account\nD - Deposit\nL - Logout\nT - Transfer\nW - Withdraw" << endl;
 
         vector<char> commandCharacters = { 'C', 'D', 'L', 'T', 'W' };
