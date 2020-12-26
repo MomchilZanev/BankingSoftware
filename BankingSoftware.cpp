@@ -18,6 +18,7 @@ const double maxOverdraft = 10000.0;
 void loadUsersFromDb(vector<user>& users);
 user getUserFromString(const string input);
 
+void mainMenu(vector<user>& users);
 int Login(vector<user>& users);
 int Register(vector<user>& users);
 void Quit(vector<user>& users);
@@ -55,6 +56,13 @@ int main()
 
     loadUsersFromDb(users);
 
+    mainMenu(users);
+
+    return 0;
+}
+
+void mainMenu(vector<user>& users)
+{
     int currentUserId;
     while (true)
     {
@@ -63,7 +71,7 @@ int main()
         cout << "L - login:" << endl;
         cout << "R - Register:" << endl;
         cout << "Q - Quit:" << endl;
-        
+
         const vector<char> commandCharacters = { 'L', 'R', 'Q' };
         char command = getCommand(commandCharacters);
         switch (command)
@@ -78,13 +86,11 @@ int main()
             break;
         case 'Q':
             Quit(users);
-            return 0;
+            return;
         default:
             break;
         }
     }
-
-    return 0;
 }
 
 void loadUsersFromDb(vector<user>& users)
