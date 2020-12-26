@@ -44,6 +44,8 @@ char getCommand(const vector<char> allowedCharacters);
 bool characterIsAllowed(const vector<char> allowedCharacters, const char character);
 char toUpperCase(char character);
 
+double getValidDoubleInput();
+bool isNumeric(const string input);
 double roundDown(const double number);
 
 int main()
@@ -146,7 +148,7 @@ int Register(vector<user>& users)
     cin >> confirmPassword;
     while (confirmPassword != password)
     {
-        cout << "Passwords dont match, confirm password:" << endl;
+        cout << "Passwords don't match, confirm password:" << endl;
         cin >> confirmPassword;
     }
 
@@ -237,16 +239,13 @@ bool cancelAccount(vector<user>& users, const int userId)
 void deposit(vector<user>& users, const int userId)
 {
     cout << "Choose amount to deposit:" << endl;
-    double amount;
-    cin >> amount;
-    while (amount <= 0)
+    double depositAmount = getValidDoubleInput();
+    while (depositAmount <= 0)
     {
         cout << "Amount must be greater than 0\nChoose amount to deposit:" << endl;
-        cin >> amount;
+        depositAmount = getValidDoubleInput();
     }
-
-    amount = roundDown(amount);
-    users[userId].balance += amount;
+    users[userId].balance += depositAmount;
 }
 
 double roundDown(const double number)
@@ -277,15 +276,12 @@ void transfer(vector<user>& users, const int userId)
     double userBalance = users[userId].balance;
 
     cout << "Choose amount to transfer:" << endl;
-    double transferAmount;
-    cin >> transferAmount;
-    transferAmount = roundDown(transferAmount);
+    double transferAmount = getValidDoubleInput();
     double userBalanceAfterTransfer = userBalance - transferAmount;
     while (transferAmount <= 0 || userBalanceAfterTransfer < -maxOverdraft)
     {
-        cout << "Amount must be greater than 0 and maximum overdraft is 10 000 BGN\nChoose amount to transfer:" << endl;
-        cin >> transferAmount;
-        transferAmount = roundDown(transferAmount);
+        cout << "Amount must be greater than 0 and maximum overdraft is " << maxOverdraft << " BGN\nChoose amount to transfer:" << endl;
+        transferAmount = getValidDoubleInput();
         userBalanceAfterTransfer = userBalance - transferAmount;
     }
 
@@ -298,15 +294,12 @@ void withdraw(vector<user>& users, const int userId)
     double userBalance = users[userId].balance;
 
     cout << "Choose amount to withdraw:" << endl;
-    double withdrawAmount;
-    cin >> withdrawAmount;
-    withdrawAmount = roundDown(withdrawAmount);
+    double withdrawAmount = getValidDoubleInput();
     double userBalanceAfterWithdraw = userBalance - withdrawAmount;
     while (withdrawAmount <= 0 || userBalanceAfterWithdraw < -maxOverdraft)
     {
-        cout << "Amount must be greater than 0 and maximum overdraft is 10 000 BGN\nChoose amount to withdraw:" << endl;
-        cin >> withdrawAmount;
-        withdrawAmount = roundDown(withdrawAmount);
+        cout << "Amount must be greater than 0 and maximum overdraft is " << maxOverdraft << " BGN\nChoose amount to withdraw:" << endl;
+        withdrawAmount = getValidDoubleInput();
         userBalanceAfterWithdraw = userBalance - withdrawAmount;
     }
 
@@ -315,7 +308,6 @@ void withdraw(vector<user>& users, const int userId)
 
 user getUserFromString(const string input)
 {
-    
     int length = input.size();
 
     int index = 0;
@@ -514,4 +506,33 @@ char toUpperCase(char character)
     }
 
     return character;
+}
+
+double getValidDoubleInput()
+{
+    string number;
+    cin >> number;
+    while (!isNumeric(number))
+    {
+        cout << "This is not a valid number, try again" << endl;
+        cin >> number;
+    }
+
+    return roundDown(stod(number));
+}
+
+bool isNumeric(const string input) 
+{
+    const char decimalPoint = '.';
+    const char plusChar = '+';
+    const char minusChar = '-';
+    for (int i = 0; i < input.size(); i++)
+    {
+        if (!isdigit(input[i]) && input[i] != decimalPoint && input[i] != plusChar && input[i] != minusChar)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
