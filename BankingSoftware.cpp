@@ -18,6 +18,9 @@ int Login(vector<user>& users);
 int Register(vector<user>& users);
 void Quit(vector<user>& users);
 
+void userMenu(vector<user>& users, int userId);
+void cancelAccount(vector<user>& users, int userId);
+
 int getUserId(vector<user>& users, string username);
 bool passwordsMatch(vector<user>& users, int userId, string passwordGuess);
 
@@ -59,9 +62,11 @@ int main()
         {
         case 'L':
             currentUserId = Login(users);
+            userMenu(users, currentUserId);
             break;
         case 'R':
             currentUserId = Register(users);
+            userMenu(users, currentUserId);
             break;
         case 'Q':
             Quit(users);
@@ -157,6 +162,38 @@ void Quit(vector<user>& users)
     }
 
     userDb.close();
+}
+
+void userMenu(vector<user>& users, int userId)
+{
+    user currentUser = users[userId];
+    cout << "You have " << currentUser.balance << " BGN. Choose one of the following options:" << endl;
+    cout << "C - Cancel account\nD - Deposit\nL - Logout\nT - Transfer\nW - Withdraw" << endl;
+
+    char command;
+    cin >> command;
+    switch (command)
+    {
+    case 'C':
+        cancelAccount(users, userId);
+        break;
+    default:
+        break;
+    }
+}
+
+void cancelAccount(vector<user>& users, int userId)
+{
+    cout << "Password:" << endl;
+    string password;
+    cin >> password;
+    while (!passwordsMatch(users, userId, password))
+    {
+        cout << "Incorrect password\nPassword:" << endl;
+        cin >> password;
+    }
+
+    users.erase(users.begin() + userId);
 }
 
 user getUserFromString(string input)
