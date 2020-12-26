@@ -182,6 +182,8 @@ void userMenu(vector<user>& users, int userId)
         case 'D':
             deposit(users, userId);
             break;
+        case 'L':
+            return;
         default:
             break;
         }
