@@ -22,7 +22,7 @@ int Register(vector<user>& users);
 void Quit(vector<user>& users);
 
 void userMenu(vector<user>& users, const int userId);
-void cancelAccount(vector<user>& users, const int userId);
+bool cancelAccount(vector<user>& users, const int userId);
 void deposit(vector<user>& users, const int userId);
 void transfer(vector<user>& users, const int userId);
 void withdraw(vector<user>& users, const int userId);
@@ -189,9 +189,12 @@ void userMenu(vector<user>& users, const int userId)
         char command = getCommand(commandCharacters);
         switch (command)
         {
-        case 'C':
-            cancelAccount(users, userId);
-            return;
+        case 'C':            
+            if (cancelAccount(users, userId))
+            {
+                return;
+            }
+            break;
         case 'D':
             deposit(users, userId);
             break;
@@ -209,7 +212,7 @@ void userMenu(vector<user>& users, const int userId)
     }    
 }
 
-void cancelAccount(vector<user>& users, const int userId)
+bool cancelAccount(vector<user>& users, const int userId)
 {
     cout << "Password:" << endl;
     string password;
@@ -220,7 +223,14 @@ void cancelAccount(vector<user>& users, const int userId)
         cin >> password;
     }
 
+    if (users[userId].balance != 0)
+    {
+        cout << "Account can be canceled only if balance is equal to 0" << endl;
+        return false;
+    }
+
     users.erase(users.begin() + userId);
+    return true;
 }
 
 void deposit(vector<user>& users, const int userId)
