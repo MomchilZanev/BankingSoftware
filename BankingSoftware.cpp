@@ -12,36 +12,39 @@ struct user
     double balance;
 };
 
-user getUserFromString(string input);
+const char dbSeparator = ':';
+const double maxOverdraft = 10000.0;
+
+user getUserFromString(const string input);
 
 int Login(vector<user>& users);
 int Register(vector<user>& users);
 void Quit(vector<user>& users);
 
-void userMenu(vector<user>& users, int userId);
-void cancelAccount(vector<user>& users, int userId);
-void deposit(vector<user>& users, int userId);
-void transfer(vector<user>& users, int userId);
-void withdraw(vector<user>& users, int userId);
+void userMenu(vector<user>& users, const int userId);
+void cancelAccount(vector<user>& users, const int userId);
+void deposit(vector<user>& users, const int userId);
+void transfer(vector<user>& users, const int userId);
+void withdraw(vector<user>& users, const int userId);
 
-int getUserId(vector<user>& users, string username);
-bool passwordsMatch(vector<user>& users, int userId, string passwordGuess);
+int getUserId(vector<user>& users, const string username);
+bool passwordsMatch(vector<user>& users, const int userId, const string passwordGuess);
 
-bool usernameExists(vector<user>& users, string username);
-bool validateUsername(string username);
+bool usernameExists(vector<user>& users, const string username);
+bool validateUsername(const string username);
 
-bool validatePassword(string password);
-bool charIsSymbol(char character);
-bool stringContainsSymbol(string input);
-bool stringContainsUppercaseLetter(string input);
-bool stringContainsLowercaseLetter(string input);
-bool stringContainsIllegalCharacters(string input);
+bool validatePassword(const string password);
+bool charIsSymbol(const char character);
+bool stringContainsSymbol(const string input);
+bool stringContainsUppercaseLetter(const string input);
+bool stringContainsLowercaseLetter(const string input);
+bool stringContainsIllegalCharacters(const string input);
 
-char getCommand(vector<char> allowedCharacters);
-bool characterIsAllowed(vector<char> allowedCharacters, char character);
+char getCommand(const vector<char> allowedCharacters);
+bool characterIsAllowed(const vector<char> allowedCharacters, const char character);
 char toUpperCase(char character);
 
-double roundDown(double number);
+double roundDown(const double number);
 
 int main()
 {
@@ -66,7 +69,7 @@ int main()
         cout << "R - Register:" << endl;
         cout << "Q - Quit:" << endl;
         
-        vector<char> commandCharacters = { 'L', 'R', 'Q' };
+        const vector<char> commandCharacters = { 'L', 'R', 'Q' };
         char command = getCommand(commandCharacters);
         switch (command)
         {
@@ -168,13 +171,13 @@ void Quit(vector<user>& users)
     for (int i = 0; i < users.size(); i++)
     {
         user currentUser = users[i];
-        userDb << fixed << setprecision(2) << currentUser.name << ':' << currentUser.hashedPassword << ':' << currentUser.balance << endl;
+        userDb << fixed << setprecision(2) << currentUser.name << dbSeparator << currentUser.hashedPassword << dbSeparator << currentUser.balance << endl;
     }
 
     userDb.close();
 }
 
-void userMenu(vector<user>& users, int userId)
+void userMenu(vector<user>& users, const int userId)
 {
     while (true)
     {
@@ -182,7 +185,7 @@ void userMenu(vector<user>& users, int userId)
         cout << fixed << setprecision(2) << "You have " << currentUser.balance << " BGN. Choose one of the following options:" << endl;
         cout << "C - Cancel account\nD - Deposit\nL - Logout\nT - Transfer\nW - Withdraw" << endl;
 
-        vector<char> commandCharacters = { 'C', 'D', 'L', 'T', 'W' };
+        const vector<char> commandCharacters = { 'C', 'D', 'L', 'T', 'W' };
         char command = getCommand(commandCharacters);
         switch (command)
         {
@@ -206,7 +209,7 @@ void userMenu(vector<user>& users, int userId)
     }    
 }
 
-void cancelAccount(vector<user>& users, int userId)
+void cancelAccount(vector<user>& users, const int userId)
 {
     cout << "Password:" << endl;
     string password;
@@ -220,7 +223,7 @@ void cancelAccount(vector<user>& users, int userId)
     users.erase(users.begin() + userId);
 }
 
-void deposit(vector<user>& users, int userId)
+void deposit(vector<user>& users, const int userId)
 {
     cout << "Choose amount to deposit:" << endl;
     double amount;
@@ -235,13 +238,13 @@ void deposit(vector<user>& users, int userId)
     users[userId].balance += amount;
 }
 
-double roundDown(double number)
+double roundDown(const double number)
 {
     //Round down to 2 decimal places
     return floor(number * 100.0) / 100.0;
 }
 
-void transfer(vector<user>& users, int userId)
+void transfer(vector<user>& users, const int userId)
 {
     cout << "Choose destination account name:" << endl;
     string destinationName;
@@ -267,7 +270,7 @@ void transfer(vector<user>& users, int userId)
     cin >> transferAmount;
     transferAmount = roundDown(transferAmount);
     double userBalanceAfterTransfer = userBalance - transferAmount;
-    while (transferAmount <= 0 || userBalanceAfterTransfer < -10000)
+    while (transferAmount <= 0 || userBalanceAfterTransfer < -maxOverdraft)
     {
         cout << "Amount must be greater than 0 and maximum overdraft is 10 000 BGN\nChoose amount to transfer:" << endl;
         cin >> transferAmount;
@@ -279,7 +282,7 @@ void transfer(vector<user>& users, int userId)
     users[destinationId].balance += transferAmount;
 }
 
-void withdraw(vector<user>& users, int userId)
+void withdraw(vector<user>& users, const int userId)
 {
     double userBalance = users[userId].balance;
 
@@ -288,7 +291,7 @@ void withdraw(vector<user>& users, int userId)
     cin >> withdrawAmount;
     withdrawAmount = roundDown(withdrawAmount);
     double userBalanceAfterWithdraw = userBalance - withdrawAmount;
-    while (withdrawAmount <= 0 || userBalanceAfterWithdraw < -10000)
+    while (withdrawAmount <= 0 || userBalanceAfterWithdraw < -maxOverdraft)
     {
         cout << "Amount must be greater than 0 and maximum overdraft is 10 000 BGN\nChoose amount to withdraw:" << endl;
         cin >> withdrawAmount;
@@ -299,14 +302,15 @@ void withdraw(vector<user>& users, int userId)
     users[userId].balance -= withdrawAmount;
 }
 
-user getUserFromString(string input)
+user getUserFromString(const string input)
 {
+    
     int length = input.size();
 
     int index = 0;
     char tmp = input[index];
     string name;
-    while (tmp != ':' && index < length)
+    while (tmp != dbSeparator && index < length)
     {
         name += tmp;
         index++;
@@ -316,7 +320,7 @@ user getUserFromString(string input)
     index++;
     tmp = input[index];
     string hashedPasswordStr;
-    while (tmp != ':' && index < length)
+    while (tmp != dbSeparator && index < length)
     {
         hashedPasswordStr += tmp;
         index++;
@@ -327,7 +331,7 @@ user getUserFromString(string input)
     index++;
     tmp = input[index];
     string balanceStr;
-    while (tmp != ':' && index < length)
+    while (tmp != dbSeparator && index < length)
     {
         balanceStr += tmp;
         index++;
@@ -344,7 +348,7 @@ user getUserFromString(string input)
     return currentUser;
 }
 
-int getUserId(vector<user>& users, string username)
+int getUserId(vector<user>& users, const string username)
 {
     for (int i = 0; i < users.size(); i++)
     {
@@ -356,7 +360,7 @@ int getUserId(vector<user>& users, string username)
     return -1;
 }
 
-bool passwordsMatch(vector<user>& users, int userId, string passwordGuess)
+bool passwordsMatch(vector<user>& users, const int userId, const string passwordGuess)
 {
     hash<string> hashString;
     unsigned long hashedPasswordGuess = hashString(passwordGuess);
@@ -368,7 +372,7 @@ bool passwordsMatch(vector<user>& users, int userId, string passwordGuess)
     return false;
 }
 
-bool validateUsername(string username)
+bool validateUsername(const string username)
 {
     for (int i = 0; i < username.size(); i++)
     {
@@ -380,7 +384,7 @@ bool validateUsername(string username)
     return true;
 }
 
-bool usernameExists(vector<user>& users, string username)
+bool usernameExists(vector<user>& users, const string username)
 {
     for (int i = 0; i < users.size(); i++)
     {
@@ -392,7 +396,7 @@ bool usernameExists(vector<user>& users, string username)
     return false;
 }
 
-bool validatePassword(string password)
+bool validatePassword(const string password)
 {
     int length = password.size();
     if (length < 5 || !stringContainsLowercaseLetter(password) || !stringContainsUppercaseLetter(password) || !stringContainsSymbol(password))
@@ -411,7 +415,7 @@ bool validatePassword(string password)
     return true;
 }
 
-bool stringContainsIllegalCharacters(string input)
+bool stringContainsIllegalCharacters(const string input)
 {
     for (int i = 0; i < input.size(); i++)
     {
@@ -423,7 +427,7 @@ bool stringContainsIllegalCharacters(string input)
     return true;
 }
 
-bool charIsSymbol(char character)
+bool charIsSymbol(const char character)
 {
     const vector<char> allowedSymbols = { '!', '@', '#', '$', '%', '^', '&', '*' };
     for (int i = 0; i < allowedSymbols.size(); i++)
@@ -436,7 +440,7 @@ bool charIsSymbol(char character)
     return false;
 }
 
-bool stringContainsSymbol(string input)
+bool stringContainsSymbol(const string input)
 {
     for (int i = 0; i < input.size(); i++)
     {
@@ -448,7 +452,7 @@ bool stringContainsSymbol(string input)
     return false;
 }
 
-bool stringContainsLowercaseLetter(string input)
+bool stringContainsLowercaseLetter(const string input)
 {
     for (int i = 0; i < input.size(); i++)
     {
@@ -460,7 +464,7 @@ bool stringContainsLowercaseLetter(string input)
     return false;
 }
 
-bool stringContainsUppercaseLetter(string input)
+bool stringContainsUppercaseLetter(const string input)
 {
     for (int i = 0; i < input.size(); i++)
     {
@@ -472,7 +476,7 @@ bool stringContainsUppercaseLetter(string input)
     return false;
 }
 
-char getCommand(vector<char> allowedCharacters)
+char getCommand(const vector<char> allowedCharacters)
 {
     string input;
     cin >> input;
@@ -487,7 +491,7 @@ char getCommand(vector<char> allowedCharacters)
     return commandChar;
 }
 
-bool characterIsAllowed(vector<char> allowedCharacters, char character)
+bool characterIsAllowed(const vector<char> allowedCharacters, const char character)
 {
     for (int i = 0; i < allowedCharacters.size(); i++)
     {
