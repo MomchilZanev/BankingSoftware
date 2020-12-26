@@ -80,11 +80,14 @@ void mainMenu(vector<user>& users)
     int currentUserId;
     while (true)
     {
-        cout << "   ---   Main Menu   ---" << endl;
-        cout << "Commands:" << endl;
-        cout << "L - login:" << endl;
-        cout << "R - Register:" << endl;
-        cout << "Q - Quit:" << endl;
+        const string menuArt =  
+            "    /|    //| |                                     /|    //| |                                  \n"
+            "   //|   // | |     ___       ( )       __         //|   // | |     ___         __               \n"
+            "  // |  //  | |   //   ) )   / /     //   ) )     // |  //  | |   //___) )   //   ) )   //   / / \n"
+            " //  | //   | |  //   / /   / /     //   / /     //  | //   | |  //         //   / /   //   / /  \n"
+            "//   |//    | | ((___( (   / /     //   / /     //   |//    | | ((____     //   / /   ((___( (   \n";
+        cout << menuArt;
+        cout << "Commands:\nL - login:\nR - Register:\nQ - Quit:" << endl;
 
         const vector<char> commandCharacters = { 'L', 'R', 'Q' };
         char command = getCommand(commandCharacters);
