@@ -22,6 +22,7 @@ void userMenu(vector<user>& users, int userId);
 void cancelAccount(vector<user>& users, int userId);
 void deposit(vector<user>& users, int userId);
 void transfer(vector<user>& users, int userId);
+void withdraw(vector<user>& users, int userId);
 
 int getUserId(vector<user>& users, string username);
 bool passwordsMatch(vector<user>& users, int userId, string passwordGuess);
@@ -188,6 +189,9 @@ void userMenu(vector<user>& users, int userId)
         case 'T':
             transfer(users, userId);
             break;
+        case 'W':
+            withdraw(users, userId);
+            break;
         default:
             break;
         }
@@ -262,6 +266,28 @@ void transfer(vector<user>& users, int userId)
 
     users[userId].balance = userBalanceAfterTransfer;
     users[destinationId].balance += transferAmount;
+}
+
+void withdraw(vector<user>& users, int userId)
+{
+    double userBalance = users[userId].balance;
+
+    cout << "Choose amount to withdraw:" << endl;
+    double withdrawAmount;
+    cin >> withdrawAmount;
+    //Round down to 2 decimal places
+    withdrawAmount = floor(withdrawAmount * 100.0) / 100.0;
+    double userBalanceAfterWithdraw = userBalance - withdrawAmount;
+    while (withdrawAmount <= 0 || userBalanceAfterWithdraw < -10000)
+    {
+        cout << "Amount must be greater than 0 and maximum overdraft is 10 000 BGN\nChoose amount to withdraw:" << endl;
+        cin >> withdrawAmount;
+        //Round down to 2 decimal places
+        withdrawAmount = floor(withdrawAmount * 100.0) / 100.0;
+        userBalanceAfterWithdraw = userBalance - withdrawAmount;
+    }
+
+    users[userId].balance -= withdrawAmount;
 }
 
 user getUserFromString(string input)
