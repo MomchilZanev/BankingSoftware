@@ -15,6 +15,7 @@ struct user
 const char dbSeparator = ':';
 const double maxOverdraft = 10000.0;
 
+void loadUsersFromDb(vector<user>& users);
 user getUserFromString(const string input);
 
 int Login(vector<user>& users);
@@ -52,15 +53,7 @@ int main()
 {
     vector<user> users;
 
-    fstream userDb;
-    userDb.open("users.txt", fstream::in);
-    string currentLine;
-    while (getline(userDb, currentLine))
-    {
-        user currentUser = getUserFromString(currentLine);
-        users.push_back(currentUser);
-    }
-    userDb.close();
+    loadUsersFromDb(users);
 
     int currentUserId;
     while (true)
@@ -92,6 +85,19 @@ int main()
     }
 
     return 0;
+}
+
+void loadUsersFromDb(vector<user>& users)
+{
+    fstream userDb;
+    userDb.open("users.txt", fstream::in);
+    string currentLine;
+    while (getline(userDb, currentLine))
+    {
+        user currentUser = getUserFromString(currentLine);
+        users.push_back(currentUser);
+    }
+    userDb.close();
 }
 
 int Login(vector<user>& users)
