@@ -1,55 +1,51 @@
+/**
+*
+* Solution to course project # 3
+* Introduction to programming course
+* Faculty of Mathematics and Informatics of Sofia University
+* Winter semester 2020/2021
+*
+* @author Momchil Zanev
+* @idnumber 62558
+* @compiler VC
+*
+* <UserStruct.h>
+* <HelperFunctions.h>
+* <HelperFunctions.cpp>
+*
+*/
+
+
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
 #include <iomanip>
+#include "UserStruct.h"
+#include "HelperFunctions.h"
 using namespace std;
-
-struct user
-{
-    string name;
-    unsigned long hashedPassword;
-    double balance;
-};
 
 const char dbSeparator = ':';
 const double maxOverdraft = 10000.0;
 const double minimumTransaction = 0.0;
 
-void loadUsersFromDb(vector<user>& users);
-user getUserFromString(const string input);
-
-void mainMenu(vector<user>& users);
+void MainMenu(vector<user>& users);
 int Login(vector<user>& users);
 int Register(vector<user>& users);
 void Quit(vector<user>& users);
 
-void userMenu(vector<user>& users, const int userId);
-bool cancelAccount(vector<user>& users, const int userId);
-void deposit(vector<user>& users, const int userId);
-void transfer(vector<user>& users, const int userId);
-void withdraw(vector<user>& users, const int userId);
+void UserMenu(vector<user>& users, const int userId);
+bool CancelAccount(vector<user>& users, const int userId);
+void Deposit(vector<user>& users, const int userId);
+void Transfer(vector<user>& users, const int userId);
+void Withdraw(vector<user>& users, const int userId);
+
+void loadUsersFromDb(vector<user>& users);
+user getUserFromString(const string input);
 
 int getUserId(vector<user>& users, const string username);
 bool passwordsMatch(vector<user>& users, const int userId, const string passwordGuess);
 bool usernameExists(vector<user>& users, const string username);
-
-bool validateUsername(const string username);
-bool validatePassword(const string password);
-
-bool charIsSymbol(const char character);
-bool stringContainsSymbol(const string input);
-bool stringContainsUppercaseLetter(const string input);
-bool stringContainsLowercaseLetter(const string input);
-bool stringContainsIllegalCharacters(const string input);
-bool characterIsAllowed(const vector<char> allowedCharacters, const char character);
-char toUpperCase(char character);
-
-char getCommand(const vector<char> allowedCharacters);
-double getValidDoubleInput();
-
-bool isNumeric(const string input);
-double roundDown(const double number);
 
 int main()
 {
@@ -57,7 +53,7 @@ int main()
 
     loadUsersFromDb(users);
 
-    mainMenu(users);
+    MainMenu(users);
 
     return 0;
 }
@@ -75,7 +71,7 @@ void loadUsersFromDb(vector<user>& users)
     userDb.close();
 }
 
-void mainMenu(vector<user>& users)
+void MainMenu(vector<user>& users)
 {
     int currentUserId;
     while (true)
@@ -95,11 +91,11 @@ void mainMenu(vector<user>& users)
         {
         case 'L':
             currentUserId = Login(users);
-            userMenu(users, currentUserId);
+            UserMenu(users, currentUserId);
             break;
         case 'R':
             currentUserId = Register(users);
-            userMenu(users, currentUserId);
+            UserMenu(users, currentUserId);
             break;
         case 'Q':
             Quit(users);
@@ -195,7 +191,7 @@ void Quit(vector<user>& users)
     userDb.close();
 }
 
-void userMenu(vector<user>& users, const int userId)
+void UserMenu(vector<user>& users, const int userId)
 {
     while (true)
     {
@@ -208,22 +204,22 @@ void userMenu(vector<user>& users, const int userId)
         switch (command)
         {
         case 'C':            
-            if (cancelAccount(users, userId))
+            if (CancelAccount(users, userId))
             {
                 //If account was removed successfully go to Main menu
                 return;
             }
             break;
         case 'D':
-            deposit(users, userId);
+            Deposit(users, userId);
             break;
         case 'L':
             return;
         case 'T':
-            transfer(users, userId);
+            Transfer(users, userId);
             break;
         case 'W':
-            withdraw(users, userId);
+            Withdraw(users, userId);
             break;
         default:
             break;
@@ -231,7 +227,7 @@ void userMenu(vector<user>& users, const int userId)
     }    
 }
 
-bool cancelAccount(vector<user>& users, const int userId)
+bool CancelAccount(vector<user>& users, const int userId)
 {
     cout << "Password:" << endl;
     string password;
@@ -252,7 +248,7 @@ bool cancelAccount(vector<user>& users, const int userId)
     return true;
 }
 
-void deposit(vector<user>& users, const int userId)
+void Deposit(vector<user>& users, const int userId)
 {
     cout << "Choose amount to deposit:" << endl;
     double depositAmount = getValidDoubleInput();
@@ -264,7 +260,7 @@ void deposit(vector<user>& users, const int userId)
     users[userId].balance += depositAmount;
 }
 
-void transfer(vector<user>& users, const int userId)
+void Transfer(vector<user>& users, const int userId)
 {
     cout << "Choose destination account name:" << endl;
     string destinationName;
@@ -293,7 +289,7 @@ void transfer(vector<user>& users, const int userId)
     users[destinationId].balance += transferAmount;
 }
 
-void withdraw(vector<user>& users, const int userId)
+void Withdraw(vector<user>& users, const int userId)
 {
     double userBalance = users[userId].balance;
 
@@ -344,155 +340,6 @@ bool usernameExists(vector<user>& users, const string username)
         }
     }
     return false;
-}
-
-bool validateUsername(const string username)
-{
-    for (int i = 0; i < username.size(); i++)
-    {
-        if (!((username[i] >= 'a' && username[i] <= 'z') || (username[i] >= 'A' && username[i] <= 'Z')))
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
-bool validatePassword(const string password)
-{
-    int length = password.size();
-    if (length < 5 || !stringContainsLowercaseLetter(password) || !stringContainsUppercaseLetter(password) || !stringContainsSymbol(password) || stringContainsIllegalCharacters(password))
-    {
-        return false;
-    }
-    return true;
-}
-
-bool stringContainsIllegalCharacters(const string input)
-{
-    for (int i = 0; i < input.size(); i++)
-    {
-        if (!((input[i] >= 'a' && input[i] <= 'z') || (input[i] >= 'A' && input[i] <= 'Z') || (input[i] >= '1' && input[i] <= '9') || (charIsSymbol(input[i]))))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool charIsSymbol(const char character)
-{
-    const vector<char> allowedSymbols = { '!', '@', '#', '$', '%', '^', '&', '*' };
-    return characterIsAllowed(allowedSymbols, character);
-}
-
-bool stringContainsSymbol(const string input)
-{
-    for (int i = 0; i < input.size(); i++)
-    {
-        if (charIsSymbol(input[i]))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool stringContainsLowercaseLetter(const string input)
-{
-    for (int i = 0; i < input.size(); i++)
-    {
-        if (input[i] >= 'a' && input[i] <= 'z')
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool stringContainsUppercaseLetter(const string input)
-{
-    for (int i = 0; i < input.size(); i++)
-    {
-        if (input[i] >= 'A' && input[i] <= 'Z')
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-char getCommand(const vector<char> allowedCharacters)
-{
-    string input;
-    cin >> input;
-    char commandChar = toUpperCase(input[0]);
-    while (input.size() > 1 || !characterIsAllowed(allowedCharacters, commandChar))
-    {
-        cout << "Invalid command" << endl;
-        cin >> input;
-        commandChar = toUpperCase(input[0]);
-    }
-
-    return commandChar;
-}
-
-bool characterIsAllowed(const vector<char> allowedCharacters, const char character)
-{
-    for (int i = 0; i < allowedCharacters.size(); i++)
-    {
-        if (allowedCharacters[i] == character)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-char toUpperCase(char character)
-{
-    if (character >= 'a' && character <= 'z')
-    {
-        const int asciiDiffBetweenUpperAndLowerCaseLetter = 32;
-        character -= asciiDiffBetweenUpperAndLowerCaseLetter;
-    }
-
-    return character;
-}
-
-double getValidDoubleInput()
-{
-    string number;
-    cin >> number;
-    while (!isNumeric(number))
-    {
-        cout << "This is not a valid number, try again" << endl;
-        cin >> number;
-    }
-
-    return roundDown(stod(number));
-}
-
-bool isNumeric(const string input) 
-{
-    const char decimalPoint = '.';
-    const char plusChar = '+';
-    const char minusChar = '-';
-    for (int i = 0; i < input.size(); i++)
-    {
-        if (!isdigit(input[i]) && input[i] != decimalPoint && input[i] != plusChar && input[i] != minusChar)
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-double roundDown(const double number)
-{
-    //Round down to 2 decimal places
-    return floor(number * 100.0) / 100.0;
 }
 
 user getUserFromString(const string input)
