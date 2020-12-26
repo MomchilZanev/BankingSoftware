@@ -37,6 +37,10 @@ bool stringContainsUppercaseLetter(string input);
 bool stringContainsLowercaseLetter(string input);
 bool stringContainsIllegalCharacters(string input);
 
+char getCommand(vector<char> allowedCharacters);
+bool characterIsAllowed(vector<char> allowedCharacters, char character);
+char toUpperCase(char character);
+
 int main()
 {
     vector<user> users;
@@ -59,8 +63,9 @@ int main()
         cout << "L - login:" << endl;
         cout << "R - Register:" << endl;
         cout << "Q - Quit:" << endl;
-        char command;
-        cin >> command;
+        
+        vector<char> commandCharacters = { 'L', 'R', 'Q' };
+        char command = getCommand(commandCharacters);
         switch (command)
         {
         case 'L':
@@ -174,8 +179,9 @@ void userMenu(vector<user>& users, int userId)
         user currentUser = users[userId];
         cout << "You have " << currentUser.balance << " BGN. Choose one of the following options:" << endl;
         cout << "C - Cancel account\nD - Deposit\nL - Logout\nT - Transfer\nW - Withdraw" << endl;
-        char command;
-        cin >> command;
+
+        vector<char> commandCharacters = { 'C', 'D', 'L', 'T', 'W' };
+        char command = getCommand(commandCharacters);
         switch (command)
         {
         case 'C':
@@ -461,4 +467,42 @@ bool stringContainsUppercaseLetter(string input)
         }
     }
     return false;
+}
+
+char getCommand(vector<char> allowedCharacters)
+{
+    string input;
+    cin >> input;
+    char commandChar = toUpperCase(input[0]);
+    while (input.size() > 1 || !characterIsAllowed(allowedCharacters, commandChar))
+    {
+        cout << "Invalid command" << endl;
+        cin >> input;
+        commandChar = toUpperCase(input[0]);
+    }
+
+    return commandChar;
+}
+
+bool characterIsAllowed(vector<char> allowedCharacters, char character)
+{
+    for (int i = 0; i < allowedCharacters.size(); i++)
+    {
+        if (allowedCharacters[i] == character)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+char toUpperCase(char character)
+{
+    if (character >= 'a' && character <= 'z')
+    {
+        const int asciiDiffBetweenUpperAndLowerCaseLetter = 32;
+        character -= asciiDiffBetweenUpperAndLowerCaseLetter;
+    }
+
+    return character;
 }
