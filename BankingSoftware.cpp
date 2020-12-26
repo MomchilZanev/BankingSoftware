@@ -14,6 +14,7 @@ struct user
 
 const char dbSeparator = ':';
 const double maxOverdraft = 10000.0;
+const double minimumTransaction = 0.0;
 
 void loadUsersFromDb(vector<user>& users);
 user getUserFromString(const string input);
@@ -31,22 +32,22 @@ void withdraw(vector<user>& users, const int userId);
 
 int getUserId(vector<user>& users, const string username);
 bool passwordsMatch(vector<user>& users, const int userId, const string passwordGuess);
-
 bool usernameExists(vector<user>& users, const string username);
-bool validateUsername(const string username);
 
+bool validateUsername(const string username);
 bool validatePassword(const string password);
+
 bool charIsSymbol(const char character);
 bool stringContainsSymbol(const string input);
 bool stringContainsUppercaseLetter(const string input);
 bool stringContainsLowercaseLetter(const string input);
 bool stringContainsIllegalCharacters(const string input);
-
-char getCommand(const vector<char> allowedCharacters);
 bool characterIsAllowed(const vector<char> allowedCharacters, const char character);
 char toUpperCase(char character);
 
+char getCommand(const vector<char> allowedCharacters);
 double getValidDoubleInput();
+
 bool isNumeric(const string input);
 double roundDown(const double number);
 
@@ -59,6 +60,19 @@ int main()
     mainMenu(users);
 
     return 0;
+}
+
+void loadUsersFromDb(vector<user>& users)
+{
+    fstream userDb;
+    userDb.open("users.txt", fstream::in);
+    string currentLine;
+    while (getline(userDb, currentLine))
+    {
+        user currentUser = getUserFromString(currentLine);
+        users.push_back(currentUser);
+    }
+    userDb.close();
 }
 
 void mainMenu(vector<user>& users)
@@ -91,19 +105,6 @@ void mainMenu(vector<user>& users)
             break;
         }
     }
-}
-
-void loadUsersFromDb(vector<user>& users)
-{
-    fstream userDb;
-    userDb.open("users.txt", fstream::in);
-    string currentLine;
-    while (getline(userDb, currentLine))
-    {
-        user currentUser = getUserFromString(currentLine);
-        users.push_back(currentUser);
-    }
-    userDb.close();
 }
 
 int Login(vector<user>& users)
@@ -252,18 +253,12 @@ void deposit(vector<user>& users, const int userId)
 {
     cout << "Choose amount to deposit:" << endl;
     double depositAmount = getValidDoubleInput();
-    while (depositAmount <= 0)
+    while (depositAmount <= minimumTransaction)
     {
-        cout << "Amount must be greater than 0\nChoose amount to deposit:" << endl;
+        cout << "Amount must be greater than " << minimumTransaction << "\nChoose amount to deposit:" << endl;
         depositAmount = getValidDoubleInput();
     }
     users[userId].balance += depositAmount;
-}
-
-double roundDown(const double number)
-{
-    //Round down to 2 decimal places
-    return floor(number * 100.0) / 100.0;
 }
 
 void transfer(vector<user>& users, const int userId)
@@ -271,16 +266,10 @@ void transfer(vector<user>& users, const int userId)
     cout << "Choose destination account name:" << endl;
     string destinationName;
     cin >> destinationName;
-    while (!usernameExists(users, destinationName))
-    {
-        cout << "Account doesn't exist\nChoose destination account name:" << endl;
-        cin >> destinationName;
-    }
-
     int destinationId = getUserId(users, destinationName);
-    while (destinationId == userId)
+    while (!(usernameExists(users, destinationName) && destinationId != userId))
     {
-        cout << "Account must be different from current account\nChoose destination account name:" << endl;
+        cout << "Invalid account\nChoose destination account name:" << endl;
         cin >> destinationName;
         destinationId = getUserId(users, destinationName);
     }
@@ -290,9 +279,9 @@ void transfer(vector<user>& users, const int userId)
     cout << "Choose amount to transfer:" << endl;
     double transferAmount = getValidDoubleInput();
     double userBalanceAfterTransfer = userBalance - transferAmount;
-    while (transferAmount <= 0 || userBalanceAfterTransfer < -maxOverdraft)
+    while (transferAmount <= minimumTransaction || userBalanceAfterTransfer < -maxOverdraft)
     {
-        cout << "Amount must be greater than 0 and maximum overdraft is " << maxOverdraft << " BGN\nChoose amount to transfer:" << endl;
+        cout << "Amount must be greater than " << minimumTransaction << " and maximum overdraft is " << maxOverdraft << " BGN\nChoose amount to transfer:" << endl;
         transferAmount = getValidDoubleInput();
         userBalanceAfterTransfer = userBalance - transferAmount;
     }
@@ -308,59 +297,14 @@ void withdraw(vector<user>& users, const int userId)
     cout << "Choose amount to withdraw:" << endl;
     double withdrawAmount = getValidDoubleInput();
     double userBalanceAfterWithdraw = userBalance - withdrawAmount;
-    while (withdrawAmount <= 0 || userBalanceAfterWithdraw < -maxOverdraft)
+    while (withdrawAmount <= minimumTransaction || userBalanceAfterWithdraw < -maxOverdraft)
     {
-        cout << "Amount must be greater than 0 and maximum overdraft is " << maxOverdraft << " BGN\nChoose amount to withdraw:" << endl;
+        cout << "Amount must be greater than " << minimumTransaction << " and maximum overdraft is " << maxOverdraft << " BGN\nChoose amount to withdraw:" << endl;
         withdrawAmount = getValidDoubleInput();
         userBalanceAfterWithdraw = userBalance - withdrawAmount;
     }
 
     users[userId].balance -= withdrawAmount;
-}
-
-user getUserFromString(const string input)
-{
-    int length = input.size();
-
-    int index = 0;
-    char tmp = input[index];
-    string name;
-    while (tmp != dbSeparator && index < length)
-    {
-        name += tmp;
-        index++;
-        tmp = input[index];
-    }
-
-    index++;
-    tmp = input[index];
-    string hashedPasswordStr;
-    while (tmp != dbSeparator && index < length)
-    {
-        hashedPasswordStr += tmp;
-        index++;
-        tmp = input[index];
-    }
-    unsigned long hashedPassword = stoul(hashedPasswordStr);
-
-    index++;
-    tmp = input[index];
-    string balanceStr;
-    while (tmp != dbSeparator && index < length)
-    {
-        balanceStr += tmp;
-        index++;
-        tmp = input[index];
-    }
-
-    double balance = stod(balanceStr);
-
-    user currentUser;
-    currentUser.name = name;
-    currentUser.hashedPassword = hashedPassword;
-    currentUser.balance = balance;
-
-    return currentUser;
 }
 
 int getUserId(vector<user>& users, const string username)
@@ -387,18 +331,6 @@ bool passwordsMatch(vector<user>& users, const int userId, const string password
     return false;
 }
 
-bool validateUsername(const string username)
-{
-    for (int i = 0; i < username.size(); i++)
-    {
-        if (!((username[i] >= 'a' && username[i] <= 'z') || (username[i] >= 'A' && username[i] <= 'Z')))
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
 bool usernameExists(vector<user>& users, const string username)
 {
     for (int i = 0; i < users.size(); i++)
@@ -409,6 +341,18 @@ bool usernameExists(vector<user>& users, const string username)
         }
     }
     return false;
+}
+
+bool validateUsername(const string username)
+{
+    for (int i = 0; i < username.size(); i++)
+    {
+        if (!((username[i] >= 'a' && username[i] <= 'z') || (username[i] >= 'A' && username[i] <= 'Z')))
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool validatePassword(const string password)
@@ -436,14 +380,7 @@ bool stringContainsIllegalCharacters(const string input)
 bool charIsSymbol(const char character)
 {
     const vector<char> allowedSymbols = { '!', '@', '#', '$', '%', '^', '&', '*' };
-    for (int i = 0; i < allowedSymbols.size(); i++)
-    {
-        if (character == allowedSymbols[i])
-        {
-            return true;
-        }
-    }
-    return false;
+    return characterIsAllowed(allowedSymbols, character);
 }
 
 bool stringContainsSymbol(const string input)
@@ -547,4 +484,55 @@ bool isNumeric(const string input)
     }
 
     return true;
+}
+
+double roundDown(const double number)
+{
+    //Round down to 2 decimal places
+    return floor(number * 100.0) / 100.0;
+}
+
+user getUserFromString(const string input)
+{
+    int length = input.size();
+
+    int index = 0;
+    char tmp = input[index];
+    string name;
+    while (tmp != dbSeparator && index < length)
+    {
+        name += tmp;
+        index++;
+        tmp = input[index];
+    }
+
+    index++;
+    tmp = input[index];
+    string hashedPasswordStr;
+    while (tmp != dbSeparator && index < length)
+    {
+        hashedPasswordStr += tmp;
+        index++;
+        tmp = input[index];
+    }
+    unsigned long hashedPassword = stoul(hashedPasswordStr);
+
+    index++;
+    tmp = input[index];
+    string balanceStr;
+    while (tmp != dbSeparator && index < length)
+    {
+        balanceStr += tmp;
+        index++;
+        tmp = input[index];
+    }
+
+    double balance = stod(balanceStr);
+
+    user currentUser;
+    currentUser.name = name;
+    currentUser.hashedPassword = hashedPassword;
+    currentUser.balance = balance;
+
+    return currentUser;
 }
