@@ -20,6 +20,7 @@ void Quit(vector<user>& users);
 
 void userMenu(vector<user>& users, int userId);
 void cancelAccount(vector<user>& users, int userId);
+void deposit(vector<user>& users, int userId);
 
 int getUserId(vector<user>& users, string username);
 bool passwordsMatch(vector<user>& users, int userId, string passwordGuess);
@@ -166,20 +167,25 @@ void Quit(vector<user>& users)
 
 void userMenu(vector<user>& users, int userId)
 {
-    user currentUser = users[userId];
-    cout << "You have " << currentUser.balance << " BGN. Choose one of the following options:" << endl;
-    cout << "C - Cancel account\nD - Deposit\nL - Logout\nT - Transfer\nW - Withdraw" << endl;
-
-    char command;
-    cin >> command;
-    switch (command)
+    while (true)
     {
-    case 'C':
-        cancelAccount(users, userId);
-        break;
-    default:
-        break;
-    }
+        user currentUser = users[userId];
+        cout << "You have " << currentUser.balance << " BGN. Choose one of the following options:" << endl;
+        cout << "C - Cancel account\nD - Deposit\nL - Logout\nT - Transfer\nW - Withdraw" << endl;
+        char command;
+        cin >> command;
+        switch (command)
+        {
+        case 'C':
+            cancelAccount(users, userId);
+            return;
+        case 'D':
+            deposit(users, userId);
+            break;
+        default:
+            break;
+        }
+    }    
 }
 
 void cancelAccount(vector<user>& users, int userId)
@@ -194,6 +200,22 @@ void cancelAccount(vector<user>& users, int userId)
     }
 
     users.erase(users.begin() + userId);
+}
+
+void deposit(vector<user>& users, int userId)
+{
+    cout << "Choose amount to deposit:" << endl;
+    double amount;
+    cin >> amount;
+    while (amount <= 0)
+    {
+        cout << "Amount must be greater than 0\nChoose amount to deposit:" << endl;
+        cin >> amount;
+    }
+
+    //Round up to 2 decimal places
+    amount = ceil(amount * 100.0) / 100.0;
+    users[userId].balance += amount;
 }
 
 user getUserFromString(string input)
