@@ -41,6 +41,8 @@ char getCommand(vector<char> allowedCharacters);
 bool characterIsAllowed(vector<char> allowedCharacters, char character);
 char toUpperCase(char character);
 
+double roundDown(double number);
+
 int main()
 {
     vector<user> users;
@@ -229,9 +231,14 @@ void deposit(vector<user>& users, int userId)
         cin >> amount;
     }
 
-    //Round down to 2 decimal places
-    amount = floor(amount * 100.0) / 100.0;
+    amount = roundDown(amount);
     users[userId].balance += amount;
+}
+
+double roundDown(double number)
+{
+    //Round down to 2 decimal places
+    return floor(number * 100.0) / 100.0;
 }
 
 void transfer(vector<user>& users, int userId)
@@ -257,16 +264,14 @@ void transfer(vector<user>& users, int userId)
 
     cout << "Choose amount to transfer:" << endl;
     double transferAmount;
-    cin >> transferAmount;    
-    //Round down to 2 decimal places
-    transferAmount = floor(transferAmount * 100.0) / 100.0;
+    cin >> transferAmount;
+    transferAmount = roundDown(transferAmount);
     double userBalanceAfterTransfer = userBalance - transferAmount;
     while (transferAmount <= 0 || userBalanceAfterTransfer < -10000)
     {
         cout << "Amount must be greater than 0 and maximum overdraft is 10 000 BGN\nChoose amount to transfer:" << endl;
         cin >> transferAmount;
-        //Round down to 2 decimal places
-        transferAmount = floor(transferAmount * 100.0) / 100.0;
+        transferAmount = roundDown(transferAmount);
         userBalanceAfterTransfer = userBalance - transferAmount;
     }
 
@@ -281,15 +286,13 @@ void withdraw(vector<user>& users, int userId)
     cout << "Choose amount to withdraw:" << endl;
     double withdrawAmount;
     cin >> withdrawAmount;
-    //Round down to 2 decimal places
-    withdrawAmount = floor(withdrawAmount * 100.0) / 100.0;
+    withdrawAmount = roundDown(withdrawAmount);
     double userBalanceAfterWithdraw = userBalance - withdrawAmount;
     while (withdrawAmount <= 0 || userBalanceAfterWithdraw < -10000)
     {
         cout << "Amount must be greater than 0 and maximum overdraft is 10 000 BGN\nChoose amount to withdraw:" << endl;
         cin >> withdrawAmount;
-        //Round down to 2 decimal places
-        withdrawAmount = floor(withdrawAmount * 100.0) / 100.0;
+        withdrawAmount = roundDown(withdrawAmount);
         userBalanceAfterWithdraw = userBalance - withdrawAmount;
     }
 
