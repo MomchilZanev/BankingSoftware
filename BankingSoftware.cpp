@@ -21,6 +21,7 @@ void Quit(vector<user>& users);
 void userMenu(vector<user>& users, int userId);
 void cancelAccount(vector<user>& users, int userId);
 void deposit(vector<user>& users, int userId);
+void transfer(vector<user>& users, int userId);
 
 int getUserId(vector<user>& users, string username);
 bool passwordsMatch(vector<user>& users, int userId, string passwordGuess);
@@ -184,6 +185,9 @@ void userMenu(vector<user>& users, int userId)
             break;
         case 'L':
             return;
+        case 'T':
+            transfer(users, userId);
+            break;
         default:
             break;
         }
@@ -215,9 +219,49 @@ void deposit(vector<user>& users, int userId)
         cin >> amount;
     }
 
-    //Round up to 2 decimal places
-    amount = ceil(amount * 100.0) / 100.0;
+    //Round down to 2 decimal places
+    amount = floor(amount * 100.0) / 100.0;
     users[userId].balance += amount;
+}
+
+void transfer(vector<user>& users, int userId)
+{
+    cout << "Choose destination account name:" << endl;
+    string destinationName;
+    cin >> destinationName;
+    while (!usernameExists(users, destinationName))
+    {
+        cout << "Account doesn't exist\nChoose destination account name:" << endl;
+        cin >> destinationName;
+    }
+
+    int destinationId = getUserId(users, destinationName);
+    while (destinationId == userId)
+    {
+        cout << "Account must be different from current account\nChoose destination account name:" << endl;
+        cin >> destinationName;
+        destinationId = getUserId(users, destinationName);
+    }
+
+    double userBalance = users[userId].balance;
+
+    cout << "Choose amount to transfer:" << endl;
+    double transferAmount;
+    cin >> transferAmount;    
+    //Round down to 2 decimal places
+    transferAmount = floor(transferAmount * 100.0) / 100.0;
+    double userBalanceAfterTransfer = userBalance - transferAmount;
+    while (transferAmount <= 0 || userBalanceAfterTransfer < -10000)
+    {
+        cout << "Amount must be greater than 0 and maximum overdraft is 10 000 BGN\nChoose amount to transfer:" << endl;
+        cin >> transferAmount;
+        //Round down to 2 decimal places
+        transferAmount = floor(transferAmount * 100.0) / 100.0;
+        userBalanceAfterTransfer = userBalance - transferAmount;
+    }
+
+    users[userId].balance = userBalanceAfterTransfer;
+    users[destinationId].balance += transferAmount;
 }
 
 user getUserFromString(string input)
