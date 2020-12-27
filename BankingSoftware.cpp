@@ -66,6 +66,10 @@ void loadUsersFromDb(vector<user>& users)
     while (getline(userDb, currentLine))
     {
         user currentUser = getUserFromString(currentLine);
+        if (currentUser.name == "")
+        {
+            continue;
+        }
         users.push_back(currentUser);
     }
     userDb.close();
@@ -355,6 +359,11 @@ user getUserFromString(const string input)
         index++;
         tmp = input[index];
     }
+    if (name.size() <= 0 || !validateUsername(name) || index == length)
+    {
+        user fail;
+        return  fail;
+    }
 
     index++;
     tmp = input[index];
@@ -364,6 +373,11 @@ user getUserFromString(const string input)
         hashedPasswordStr += tmp;
         index++;
         tmp = input[index];
+    }
+    if (hashedPasswordStr.size() <= 0 || !isNumeric(hashedPasswordStr) || index == length)
+    {
+        user fail;
+        return  fail;
     }
     unsigned long hashedPassword = stoul(hashedPasswordStr);
 
@@ -376,7 +390,11 @@ user getUserFromString(const string input)
         index++;
         tmp = input[index];
     }
-
+    if (balanceStr.size() <= 0 || !isNumeric(balanceStr))
+    {
+        user fail;
+        return  fail;
+    }
     double balance = stod(balanceStr);
 
     user currentUser;
