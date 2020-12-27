@@ -4,7 +4,7 @@
 #include <vector>
 using namespace std;
 
-bool validateUsername(const string username)
+bool validateUsername(const string& username)
 {
     for (int i = 0; i < username.size(); i++)
     {
@@ -16,7 +16,7 @@ bool validateUsername(const string username)
     return true;
 }
 
-bool validatePassword(const string password)
+bool validatePassword(const string& password)
 {
     const int passwordMinLength = 5;
     int length = password.size();
@@ -27,7 +27,7 @@ bool validatePassword(const string password)
     return true;
 }
 
-bool stringContainsIllegalCharacters(const string input)
+bool stringContainsIllegalCharacters(const string& input)
 {
     for (int i = 0; i < input.size(); i++)
     {
@@ -45,7 +45,7 @@ bool charIsSymbol(const char character)
     return characterIsAllowed(allowedSymbols, character);
 }
 
-bool stringContainsSymbol(const string input)
+bool stringContainsSymbol(const string& input)
 {
     for (int i = 0; i < input.size(); i++)
     {
@@ -57,7 +57,7 @@ bool stringContainsSymbol(const string input)
     return false;
 }
 
-bool stringContainsLowercaseLetter(const string input)
+bool stringContainsLowercaseLetter(const string& input)
 {
     for (int i = 0; i < input.size(); i++)
     {
@@ -69,7 +69,7 @@ bool stringContainsLowercaseLetter(const string input)
     return false;
 }
 
-bool stringContainsUppercaseLetter(const string input)
+bool stringContainsUppercaseLetter(const string& input)
 {
     for (int i = 0; i < input.size(); i++)
     {
@@ -81,7 +81,7 @@ bool stringContainsUppercaseLetter(const string input)
     return false;
 }
 
-char getCommand(const vector<char> allowedCharacters)
+char getCommand(const vector<char>& allowedCharacters)
 {
     string input;
     cin >> input;
@@ -96,7 +96,7 @@ char getCommand(const vector<char> allowedCharacters)
     return commandChar;
 }
 
-bool characterIsAllowed(const vector<char> allowedCharacters, const char character)
+bool characterIsAllowed(const vector<char>& allowedCharacters, const char character)
 {
     for (int i = 0; i < allowedCharacters.size(); i++)
     {
@@ -132,7 +132,7 @@ double getValidDoubleInput()
     return roundDown(stod(number));
 }
 
-bool isNumeric(const string input)
+bool isNumeric(const string& input)
 {
     const char decimalPoint = '.';
     const char plusChar = '+';

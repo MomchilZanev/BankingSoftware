@@ -41,11 +41,11 @@ void Transfer(vector<user>& users, const int userId);
 void Withdraw(vector<user>& users, const int userId);
 
 void loadUsersFromDb(vector<user>& users);
-user getUserFromString(const string input);
+user getUserFromString(const string& input);
 
-int getUserId(vector<user>& users, const string username);
-bool passwordsMatch(vector<user>& users, const int userId, const string passwordGuess);
-bool usernameExists(vector<user>& users, const string username);
+int getUserId(vector<user>& users, const string& username);
+bool passwordsMatch(vector<user>& users, const int userId, const string& passwordGuess);
+bool usernameExists(vector<user>& users, const string& username);
 
 int main()
 {
@@ -310,7 +310,7 @@ void Withdraw(vector<user>& users, const int userId)
     users[userId].balance -= withdrawAmount;
 }
 
-int getUserId(vector<user>& users, const string username)
+int getUserId(vector<user>& users, const string& username)
 {
     for (int i = 0; i < users.size(); i++)
     {
@@ -322,7 +322,7 @@ int getUserId(vector<user>& users, const string username)
     return -1;
 }
 
-bool passwordsMatch(vector<user>& users, const int userId, const string passwordGuess)
+bool passwordsMatch(vector<user>& users, const int userId, const string& passwordGuess)
 {
     hash<string> hashString;
     unsigned long hashedPasswordGuess = hashString(passwordGuess);
@@ -334,7 +334,7 @@ bool passwordsMatch(vector<user>& users, const int userId, const string password
     return false;
 }
 
-bool usernameExists(vector<user>& users, const string username)
+bool usernameExists(vector<user>& users, const string& username)
 {
     for (int i = 0; i < users.size(); i++)
     {
@@ -346,7 +346,7 @@ bool usernameExists(vector<user>& users, const string username)
     return false;
 }
 
-user getUserFromString(const string input)
+user getUserFromString(const string& input)
 {
     int length = input.size();
 
