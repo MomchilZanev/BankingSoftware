@@ -6,10 +6,6 @@
 #include <iomanip>
 using namespace std;
 
-const char dbSeparator = ':';
-const double maxOverdraft = 10000.0;
-const double minimumTransaction = 0.0;
-
 void MainMenu(vector<user>& users);
 int Login(vector<user>& users);
 int Register(vector<user>& users);

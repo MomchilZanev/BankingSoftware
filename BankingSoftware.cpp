@@ -10,11 +10,12 @@
 * @compiler VC
 *
 * <UserStruct.h>
+* <PrimaryFunctions.h>
+* <PrimaryFunctions.cpp>
 * <HelperFunctions.h>
 * <HelperFunctions.cpp>
 *
 */
-
 
 #include <iostream>
 #include <fstream>

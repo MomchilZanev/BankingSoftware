@@ -1,6 +1,4 @@
 #include "PrimaryFunctions.h"
-#include "HelperFunctions.h"
-#include "UserStruct.h"
 #include <fstream>
 #include <string>
 #include <vector>
