@@ -9,11 +9,7 @@
 * @idnumber 62558
 * @compiler VC
 *
-* <UserStruct.h>
-* <PrimaryFunctions.h>
-* <PrimaryFunctions.cpp>
-* <HelperFunctions.h>
-* <HelperFunctions.cpp>
+* <main project file>
 *
 */
 
